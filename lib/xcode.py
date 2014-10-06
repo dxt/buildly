@@ -100,9 +100,16 @@ def codesign(app, mobileprovision=None, identity=None):
     entitlementsFile = None
     handle, entitlementsFile = tempfile.mkstemp()
     entitlements = _entitlements(mobileprovision)
+
     # set the keychain access group to the identifier,
     # there might be some corner cases where this is not correct...
     entitlements['keychain-access-groups'] = [entitlements['application-identifier']]
+
+    del entitlements['com.apple.developer.icloud-container-development-container-identifiers']
+    entitlements['com.apple.developer.icloud-container-environment'] = 'Production'
+    entitlements['com.apple.developer.icloud-services'] = ['CloudDocuments']
+    del entitlements['com.apple.developer.ubiquity-kvstore-identifier']
+
     plistlib27.writePlist(entitlements, entitlementsFile)
 
     # with Xcode 5 the command line tools now install to /usr/bin
