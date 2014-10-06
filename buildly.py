@@ -78,6 +78,7 @@ def runConfig(config, configData, projectDirectory, branchesDirectory):
     buildly.runScript(postBuildHook, buildly.projectShortVersion(branchDirectory, target))
 
 def readConfig(configFile):
+    print time.strftime("%c")
     if not configFile: raise RuntimeError('No config plist specified')
     if not os.path.isfile(configFile): raise RuntimeError('Config plist does not exist: %s' % configFile)
 

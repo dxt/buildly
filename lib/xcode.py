@@ -106,7 +106,7 @@ def codesign(app, mobileprovision=None, identity=None):
     plistlib27.writePlist(entitlements, entitlementsFile)
 
     # with Xcode 5 the command line tools now install to /usr/bin
-    codesign_allocate = '/usr/bin/codesign_allocate'
+    codesign_allocate = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/codesign_allocate'
     if not os.path.isfile(codesign_allocate):
         codesign_allocate = '%s%s' % (XcodePath(), codesign_allocate)
 
