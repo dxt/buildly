@@ -105,10 +105,13 @@ def codesign(app, mobileprovision=None, identity=None):
     # there might be some corner cases where this is not correct...
     entitlements['keychain-access-groups'] = [entitlements['application-identifier']]
 
-    del entitlements['com.apple.developer.icloud-container-development-container-identifiers']
-    entitlements['com.apple.developer.icloud-container-environment'] = 'Production'
-    entitlements['com.apple.developer.icloud-services'] = ['CloudDocuments']
-    del entitlements['com.apple.developer.ubiquity-kvstore-identifier']
+    if 'com.apple.developer.icloud-services' in entitlements:
+    	if 'com.apple.developer.icloud-container-development-container-identifiers' in entitlements:
+	    	del entitlements['com.apple.developer.icloud-container-development-container-identifiers']
+    	entitlements['com.apple.developer.icloud-container-environment'] = 'Production'
+    	entitlements['com.apple.developer.icloud-services'] = ['CloudDocuments']
+    	if 'com.apple.developer.ubiquity-kvstore-identifier' in entitlements:
+	    	del entitlements['com.apple.developer.ubiquity-kvstore-identifier']
 
     plistlib27.writePlist(entitlements, entitlementsFile)
 
