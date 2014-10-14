@@ -55,7 +55,11 @@ def versions(teamToken, appIdentifier):
     responce = json.loads(subprocess.check_output(curl % locals(), shell=True))
     if 'app_versions' not in responce:
         return set()
-    return set(version['version'] for version in responce['app_versions'])
+    vers = set()
+    for version in responce['app_versions']:
+        if version['status'] > 0:
+            vers.add(version['version'])
+    return vers;
 
 def latestVersion(teamToken, appIdentifier):
     lastVersion = ''
