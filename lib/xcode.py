@@ -68,7 +68,7 @@ def archive(app, dsym, appModifyCallback=None):
     shutil.copytree(dsym, dsymArchive)
     updateDsymIdentifier(dsymArchive, info['CFBundleIdentifier'])
     icons = (os.path.join('Applications', appBase, item) for item in os.listdir(app)
-        if item.startswith('Icon') and item.endswith('png'))
+        if item.startswith('AppIcon') and item.endswith('@2x.png'))
     plist = {
         'AppStoreFileSize': _directorySize(archiveApp),
         'ApplicationProperties': {
