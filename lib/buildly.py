@@ -80,6 +80,7 @@ def releaseBuild(app, dsym, branchDirectory, target, output, ipaPackageHook, **h
     outputArchive = os.path.join(outputDirectory, os.path.basename(archive))
     shutil.copytree(archive, outputArchive)
     shutil.rmtree(os.path.dirname(archive))
+    return outputArchive
 
 def releaseNotes(branchDirectory, **hockeyArgs):
     return git.releaseNotes(branchDirectory, hockeyapp.latestVersion(hockeyArgs['teamToken'], hockeyArgs['appIdentifier']))

@@ -34,7 +34,13 @@ def distribute(app, dsym, branchDirectory, config, configData, projectDirectory)
     hockeyArgs['notes'] = buildly.releaseNotes(branchDirectory, **hockeyArgs)
 
     if config == 'release':
-        buildly.releaseBuild(app, dsym, branchDirectory, target, output, ipaPackageHook, **hockeyArgs)
+        archivePath = buildly.releaseBuild(app, dsym, branchDirectory, target, output, ipaPackageHook, **hockeyArgs)
+        postReleaseBuildHook = configData['configurations'][config].get('post_release_build_hook')
+        if postReleaseBuildHook: 
+        	postReleaseBuildHook = os.path.join(projectDirectory, postReleaseBuildHook)
+        	archiveFile = os.path.basename(archivePath)
+        	archiveFolder = os.path.dirname(archivePath)
+        	buildly.runScript(postReleaseBuildHook, archiveFile, archiveFolder)
     else:
         buildly.hockeyappUpload(app, dsym, display_name, replacementIconsDirectory,
             mobileprovision, identity, ipaPackageHook, **hockeyArgs)
