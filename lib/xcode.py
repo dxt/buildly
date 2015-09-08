@@ -70,7 +70,6 @@ def archive(app, dsym, appModifyCallback=None):
     icons = (os.path.join('Applications', appBase, item) for item in os.listdir(app)
         if item.startswith('AppIcon') and item.endswith('@2x.png'))
     plist = {
-        'AppStoreFileSize': _directorySize(archiveApp),
         'ApplicationProperties': {
             'ApplicationPath': os.path.join('Applications', appBase),
             'CFBundleIdentifier': info['CFBundleIdentifier'],
@@ -80,7 +79,7 @@ def archive(app, dsym, appModifyCallback=None):
             'IconPaths': list(icons)
         },
         'ArchiveVersion': 2,
-        'CreationDate': datetime.today().strftime('%Y-%m-%dT%H:%M:%SZ'),
+        'CreationDate': datetime.utcnow(),
         'Name': appName,
         'SchemeName': appName
     }
