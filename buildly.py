@@ -33,7 +33,7 @@ def distribute(app, dsym, branchDirectory, config, configData, projectDirectory)
     hockeyArgs = configData['configurations'][config]['hockeyapp']
     hockeyArgs['notes'] = buildly.releaseNotes(branchDirectory, **hockeyArgs)
 
-    if config == 'release':
+    if config.endswith("release"):
         archivePath = buildly.releaseBuild(app, dsym, branchDirectory, target, output, ipaPackageHook, **hockeyArgs)
         postReleaseBuildHook = configData['configurations'][config].get('post_release_build_hook')
         if postReleaseBuildHook: 
