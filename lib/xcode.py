@@ -124,6 +124,17 @@ def codesign(app, mobileprovision=None, identity=None):
 
     # Needed for Mountain Lion: http://stackoverflow.com/a/11723891/239380
     os.putenv('CODESIGN_ALLOCATE', codesign_allocate)
+    
+    # Codesign frameworks in Frameworks folder
+    frameworksFolder = os.path.join(app, 'Frameworks')
+    if os.path.isdir(frameworksFolder):
+    	for framework in os.listdir(frameworksFolder):
+    		if framework.endswith(".dylib") or framework.endswith(".framework"):
+    			frameworkPath = os.path.join(frameworksFolder, framework)
+    			codesignFramework = 'codesign --force --sign "%(identity)s" "%(frameworkPath)s"'
+    			if subprocess.call(codesignFramework % locals(), shell=True):
+			        raise RuntimeError('Framework code signing failed')
+    
     codesign = 'codesign --force --sign "%(identity)s" --entitlements "%(entitlementsFile)s" "%(app)s"'
     if subprocess.call(codesign % locals(), shell=True):
         if os.path.isfile(entitlementsFile): os.remove(entitlementsFile)
