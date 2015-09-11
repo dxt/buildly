@@ -84,6 +84,22 @@ def archive(app, dsym, appModifyCallback=None):
         'SchemeName': appName
     }
     plistlib27.writePlist(plist, os.path.join(archive, 'Info.plist'))
+    
+    # Add SwiftSupport folder
+    xcodePath = subprocess.check_output(["xcode-select", "--print-path"])
+    xcodePath = xcodePath.rstrip()
+    libraryPath = os.path.join(xcodePath, 'Toolchains', 'XcodeDefault.xctoolchain', 'usr', 'lib', 'swift', 'iphoneos')
+    
+    frameworksFolder = os.path.join(app, 'Frameworks')
+    if os.path.isdir(frameworksFolder):
+        for framework in os.listdir(frameworksFolder):
+            if framework.startswith("libswift"):
+                swiftSupportFolder = os.path.join(archive, 'SwiftSupport')
+                if not os.path.isdir(swiftSupportFolder):
+                    os.mkdir(swiftSupportFolder)
+                    print 'Added SwiftSupport folder'
+                shutil.copy2(os.path.join(libraryPath, framework), os.path.join(swiftSupportFolder, framework))
+    
     return archive
 
 def codesign(app, mobileprovision=None, identity=None):
@@ -105,12 +121,12 @@ def codesign(app, mobileprovision=None, identity=None):
     entitlements['keychain-access-groups'] = [entitlements['application-identifier']]
 
     if 'com.apple.developer.icloud-services' in entitlements:
-    	if 'com.apple.developer.icloud-container-development-container-identifiers' in entitlements:
-	    	del entitlements['com.apple.developer.icloud-container-development-container-identifiers']
-    	entitlements['com.apple.developer.icloud-container-environment'] = 'Production'
-    	entitlements['com.apple.developer.icloud-services'] = ['CloudDocuments']
-    	if 'com.apple.developer.ubiquity-kvstore-identifier' in entitlements:
-	    	del entitlements['com.apple.developer.ubiquity-kvstore-identifier']
+        if 'com.apple.developer.icloud-container-development-container-identifiers' in entitlements:
+            del entitlements['com.apple.developer.icloud-container-development-container-identifiers']
+        entitlements['com.apple.developer.icloud-container-environment'] = 'Production'
+        entitlements['com.apple.developer.icloud-services'] = ['CloudDocuments']
+        if 'com.apple.developer.ubiquity-kvstore-identifier' in entitlements:
+            del entitlements['com.apple.developer.ubiquity-kvstore-identifier']
 
     plistlib27.writePlist(entitlements, entitlementsFile)
 
@@ -128,12 +144,12 @@ def codesign(app, mobileprovision=None, identity=None):
     # Codesign frameworks in Frameworks folder
     frameworksFolder = os.path.join(app, 'Frameworks')
     if os.path.isdir(frameworksFolder):
-    	for framework in os.listdir(frameworksFolder):
-    		if framework.endswith(".dylib") or framework.endswith(".framework"):
-    			frameworkPath = os.path.join(frameworksFolder, framework)
-    			codesignFramework = 'codesign --force --sign "%(identity)s" "%(frameworkPath)s"'
-    			if subprocess.call(codesignFramework % locals(), shell=True):
-			        raise RuntimeError('Framework code signing failed')
+        for framework in os.listdir(frameworksFolder):
+            if framework.endswith(".dylib") or framework.endswith(".framework"):
+                frameworkPath = os.path.join(frameworksFolder, framework)
+                codesignFramework = 'codesign --force --sign "%(identity)s" "%(frameworkPath)s"'
+                if subprocess.call(codesignFramework % locals(), shell=True):
+                    raise RuntimeError('Framework code signing failed')
     
     codesign = 'codesign --force --sign "%(identity)s" --entitlements "%(entitlementsFile)s" "%(app)s"'
     if subprocess.call(codesign % locals(), shell=True):
